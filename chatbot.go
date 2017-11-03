@@ -45,20 +45,17 @@ type (
 )
 
 func sampleProcessor(session Session, message string) (string, error) {
-	// Make sure a history key is defined in the session which points to a slice of strings
 	
-
-	// Fetch the history from session and cast it to an array of strings
+	// checks if there is already a status
 	_, statusfound := session["status"]
 	
-	
+	// if there is no status initialize it by 1
 	if !statusfound {
 		session["status"] = 1
 	}
 	
-	// Make sure the message is unique in history
 	
-	
+	// case 1 : status = 1 it will be asking the user what's going on with his/her car
 	if session["status"]==1 {
 		if strings.EqualFold(strings.ToLower(message), "no") {
 		session["status"] = 2
@@ -67,44 +64,69 @@ func sampleProcessor(session Session, message string) (string, error) {
 				return fmt.Sprintf("What else is wrong with your car ?"), nil
 			}else{
 				var p string = ""
-	var d string = ""
+				var d string = ""
+				// info collection
+				if strings.Contains(strings.ToLower(message), "steering"){
+					p= "Steering"
+					if strings.Contains(strings.ToLower(message), "left"){
+						d="Left"
+					}else{
+						if strings.Contains(strings.ToLower(message), "right"){
+							d = "Right"
+						}else{
+							d="Heavy"
+						}
+					}
+
+				}
+
+							if strings.Contains(strings.ToLower(message), "engine"){
+					p= "Engine"
+					if strings.Contains(strings.ToLower(message), "temperature"){
+						d="Temperature"
+
+					}
+
+				}
+
+				if strings.Contains(strings.ToLower(message), "ac"){
+					p = "AC"
+					if strings.Contains(strings.ToLower(message), "temperature"){
+						d = "Temperature"
+					}
+				}
+
+				if strings.Contains(strings.ToLower(message), "wheels"){
+					p = "Wheels"
+					if strings.Contains(strings.ToLower(message), "hard on bumps"){
+						d = "Hard on bumps"
+					}
+				}
+
+				// send to the api the info collected
+				resp,_ := http.PostForm("https://protected-brushlands-50304.herokuapp.com/", url.Values{"pro":{p}, "description":{d}})
+
+
+				res,_ := ioutil.ReadAll(resp.Body)
+				var raw map[string] interface{}
+				json.Unmarshal([]byte(res),&raw)
+				
+				// check if something got back from the api
+				if raw["Diagnosis"] !=nil{
+					//returns it
+						return fmt.Sprintf("Diagnosis: %s, " +"Steps To Solve The Problem: %s, Do you have any other problem ?",raw["Diagnosis"].(string), raw["Steps"].(string)), nil
+
+				}else{
+					// if not then return an error
+						return "", fmt.Errorf("I don't know what you're talking about")
+				}
+					}
+				}
 	
-	if strings.Contains(strings.ToLower(message), "steering"){
-		p= "Steering"
-		if strings.Contains(strings.ToLower(message), "left"){
-			d="Left"
-		}else{
-			if strings.Contains(strings.ToLower(message), "right"){
-				d = "Right"
-			}else{
-				d="Heavy"
-			}
-		}
-		
+
 	}
 	
-	
-  resp,_ := http.PostForm("https://protected-brushlands-50304.herokuapp.com/", url.Values{"pro":{p}, "description":{d}})
-	
-	
-  res,_ := ioutil.ReadAll(resp.Body)
-  var raw map[string] interface{}
-  json.Unmarshal([]byte(res),&raw)
-	// Add the message in the parsed body to the messages in the session
-
-	// Form a sentence out of the history in the form Message 1, Message 2, and Message 3
-		if raw["Diagnosis"] !=nil{
-				return fmt.Sprintf("Diagnosis: %s, " +"Steps To Solve The Problem: %s, Do you have any other problem ?",raw["Diagnosis"].(string), raw["Steps"].(string)), nil
-
-		}else{
-				return "", fmt.Errorf("I don't know what you're talking about")
-		}
-			}
-		}
-	
-
-	}
-	
+	// case 2 where the bot asks for the car manufacturer
 	if session["status"] ==2 {
 		if strings.EqualFold(strings.ToLower(message), "no") && session["Address"]==1 {
 		session["status"] = 4
@@ -117,10 +139,47 @@ func sampleProcessor(session Session, message string) (string, error) {
 			}
 		}
 	}
+	// case 3 where the bot gets the address of the service center of the car type
 	if session["status"] ==3 {
 		var m string = ""
+		if strings.Contains(strings.ToLower(message),"ford"){
+			m = "Ford"
+		}
+		if strings.Contains(strings.ToLower(message),"peugeot"){
+			m = "Peugeot"
+		}
 		if strings.Contains(strings.ToLower(message),"chevrolet"){
 			m = "Chevrolet"
+		}
+		if strings.Contains(strings.ToLower(message),"opel"){
+			m = "Opel"
+		}
+		if strings.Contains(strings.ToLower(message),"nissan"){
+			m = "Nissan"
+		}
+		if strings.Contains(strings.ToLower(message),"mercedes"){
+			m = "Mercedes"
+		}
+		if strings.Contains(strings.ToLower(message),"bmw"){
+			m = "BMW"
+		}
+		if strings.Contains(strings.ToLower(message),"kia"){
+			m = "KIA"
+		}
+		if strings.Contains(strings.ToLower(message),"hyundai"){
+			m = "Hyundai"
+		}
+		if strings.Contains(strings.ToLower(message),"skoda"){
+			m = "Skoda"
+		}
+		if strings.Contains(strings.ToLower(message),"seat"){
+			m = "Seat"
+		}
+		if strings.Contains(strings.ToLower(message),"volkswagen"){
+			m = "Volkswagen"
+		}
+		if strings.Contains(strings.ToLower(message),"audi"){
+			m = "Audi"
 		}
 		 resp,_ := http.PostForm("https://protected-brushlands-50304.herokuapp.com/tawkeel", url.Values{"man":{m}})
 	
@@ -140,7 +199,7 @@ func sampleProcessor(session Session, message string) (string, error) {
 		}
 
 	}
-	
+	// case 4 bye bye status
 	if(session["status"]==4){
 				return fmt.Sprintf("Thanks for using Belya the Mechanic, bye"), nil
 
