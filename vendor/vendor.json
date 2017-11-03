@@ -9,6 +9,18 @@
 			"revisionTime": "2017-03-13T07:41:01Z"
 		},
 		{
+			"checksumSHA1": "0cdNscA7+z4+lKF5usZYz3it/04=",
+			"path": "github.com/joho/godotenv",
+			"revision": "0f92a24bb0cd655270e0a559fbda13f92629510b",
+			"revisionTime": "2017-11-02T02:11:18Z"
+		},
+		{
+			"checksumSHA1": "UE4lhbPYYWEhqHXQk24OA73m5+8=",
+			"path": "github.com/joho/godotenv/autoload",
+			"revision": "0f92a24bb0cd655270e0a559fbda13f92629510b",
+			"revisionTime": "2017-11-02T02:11:18Z"
+		},
+		{
 			"checksumSHA1": "klQ0wW7q4yvBuZ7Q36LTTRfwzFk=",
 			"path": "github.com/ramin0/chatbot",
 			"revision": "c9bb79785b0225cdb629db50037d11361d8c0bed",
