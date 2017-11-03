@@ -1,1 +1,1 @@
-web: go run chatbot.go
+web: Belya
